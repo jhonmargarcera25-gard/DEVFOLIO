@@ -1,0 +1,582 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - DevFolio</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --bg-soft: #111827;
+            --panel: rgba(15, 23, 42, 0.72);
+            --panel-strong: #ffffff;
+            --card: #ffffff;
+            --card-soft: #f8fafc;
+            --primary: #7c3aed;
+            --primary-2: #3b82f6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: rgba(148, 163, 184, 0.22);
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 42%, #312e81 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 28px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 26px 28px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            backdrop-filter: blur(8px);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text);
+        }
+
+        .brand p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 0.96rem;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.12));
+            color: var(--text);
+            border: 1px solid rgba(124,58,237,0.15);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            padding: 11px 18px;
+            font-weight: 700;
+            box-shadow: 0 10px 18px rgba(124,58,237,0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 22px;
+            padding: 22px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: linear-gradient(180deg, var(--primary), var(--primary-2));
+        }
+
+        .stat-card h3 {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 0.74rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .stat-card .value {
+            font-size: clamp(1.8rem, 2vw, 2.4rem);
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.04em;
+        }
+
+        .stat-card.approved::before { background: linear-gradient(180deg, #10b981, #34d399); }
+        .stat-card.pending::before { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+        .stat-card.reviews::before { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.7fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.97);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .projects-list,
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .project-item {
+            background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+            border: 1px solid rgba(148,163,184,0.18);
+            border-radius: 18px;
+            padding: 16px 18px;
+        }
+
+        .project-item h4 {
+            margin: 0 0 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .project-item p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .status-approved { background: rgba(34, 197, 94, 0.12); color: #166534; }
+        .status-pending { background: rgba(245, 158, 11, 0.12); color: #92400e; }
+        .status-draft { background: rgba(148, 163, 184, 0.18); color: #334155; }
+
+        .profile-section {
+            text-align: center;
+        }
+
+        .profile-head {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid rgba(124,58,237,0.18);
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-weight: 700;
+            box-shadow: 0 12px 28px rgba(124,58,237,0.18);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-info {
+            width: 100%;
+            text-align: left;
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(148,163,184,0.2);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(148,163,184,0.16);
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        .info-row span:first-child {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .progress-wrap {
+            margin-top: 18px;
+        }
+
+        .progress-wrap h3 {
+            margin: 0 0 8px;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--primary), var(--primary-2));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .profile-percent {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            text-decoration: none;
+            text-align: center;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: white;
+            box-shadow: 0 10px 18px rgba(124,58,237,0.25);
+        }
+
+        .btn-secondary {
+            background: #eef2ff;
+            color: var(--text);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .loading {
+            color: var(--muted);
+            text-align: center;
+            padding: 28px 10px;
+            font-size: 0.94rem;
+        }
+
+        .error-box {
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(239,68,68,0.08);
+            color: #b91c1c;
+            border: 1px solid rgba(239,68,68,0.14);
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 16px; }
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .user-actions { width: 100%; justify-content: space-between; }
+            .action-buttons { flex-direction: column; }
+            .info-row { font-size: 0.88rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <div class="brand">
+                <h1>Welcome, {{ user.first_name|default:user.username }} </h1>
+                <p>Your DevFolio dashboard</p>
+            </div>
+
+            <div class="user-actions">
+                <div class="pill">{{ user.get_role_display }}</div>
+                <a href="/api/accounts/login/" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <div id="error-container"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Projects</h3>
+                <div class="value" id="total-projects">0</div>
+            </div>
+
+            <div class="stat-card approved">
+                <h3>Approved</h3>
+                <div class="value" id="approved-projects">0</div>
+            </div>
+
+            <div class="stat-card pending">
+                <h3>Pending</h3>
+                <div class="value" id="pending-projects">0</div>
+            </div>
+
+            <div class="stat-card reviews">
+                <h3>Reviews</h3>
+                <div class="value" id="total-reviews">0</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Avg. Rating</h3>
+                <div class="value" id="avg-rating">0.0</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📁 Recent Projects</h2>
+                </div>
+                <div id="projects-container" class="projects-list">
+                    <div class="loading">Loading projects...</div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/api/projects/" class="btn btn-primary">View Projects</a>
+                    <a href="/api/projects/" class="btn btn-secondary">Add New</a>
+                </div>
+            </div>
+
+            <div class="card profile-section">
+                <div class="card-header" style="justify-content:center;">
+                    <h2>👤 Profile</h2>
+                </div>
+
+                <div class="profile-head">
+                    <div class="profile-picture">
+                        {% if profile and profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="Profile Photo">
+                        {% else %}
+                            {{ user.first_name|slice:':1'|default:'U' }}{{ user.last_name|slice:':1'|default:'' }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-row"><span>Email</span><span>{{ user.email }}</span></div>
+                    <div class="info-row"><span>Role</span><span>{{ user.get_role_display }}</span></div>
+                    <div class="info-row"><span>Joined</span><span>{{ user.date_joined|date:"M d, Y" }}</span></div>
+
+                    <div class="progress-wrap">
+                        <h3>Profile Completion</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="profile-progress" style="width:0%"></div>
+                        </div>
+                        <div class="profile-percent" id="profile-percent">0%</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/admin/" class="btn btn-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>⭐ Recent Reviews</h2>
+            </div>
+            <div id="reviews-container" class="reviews-list">
+                <div class="loading">Loading reviews...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/accounts/dashboard-stats/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                    }
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/api/accounts/login/';
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+
+                const data = await response.json();
+                document.getElementById('total-projects').textContent = data.total_projects ?? 0;
+                document.getElementById('approved-projects').textContent = data.approved_projects ?? 0;
+                document.getElementById('pending-projects').textContent = data.pending_projects ?? 0;
+                document.getElementById('total-reviews').textContent = data.total_reviews ?? 0;
+                document.getElementById('avg-rating').textContent = Number(data.average_rating || 0).toFixed(1);
+
+                const percent = Number(data.profile_completion || 0);
+                document.getElementById('profile-progress').style.width = percent + '%';
+                document.getElementById('profile-percent').textContent = percent + '%';
+            } catch (error) {
+                console.error(error);
+                showError('Unable to load dashboard data.');
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/projects/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load projects');
+                const data = await response.json();
+                const container = document.getElementById('projects-container');
+
+                const items = Array.isArray(data.results) ? data.results.slice(0, 4) : [];
+
+                if (items.length > 0) {
+                    container.innerHTML = items.map(project => `
+                        <div class="project-item">
+                            <h4>${project.title || 'Untitled Project'}</h4>
+                            <p>${(project.description || 'No description available.').substring(0, 100)}${(project.description || '').length > 100 ? '...' : ''}</p>
+                            <span class="status-badge ${project.status ? 'status-' + project.status.toLowerCase() : 'status-draft'}">${project.status || 'Draft'}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="loading">No projects yet. Create your first one.</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('projects-container').innerHTML = '<div class="loading">Projects could not be loaded.</div>';
+            }
+        }
+
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/reviews/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load reviews');
+                const data = await response.json();
+                const container = document.getElementById('reviews-container');
+                const items = Array.isArray(data.results) ? data.results.slice(0, 3) : [];
+
+                if (items.length > 0) {
+                    container.innerHTML = items.map(review => {
+                        const avg = review.creativity + review.technical_quality + review.documentation + review.presentation;
+                        return `
+                            <div class="project-item">
+                                <h4>Review for: ${review.project_title || 'Project'}</h4>
+                                <p>Average score: ${(avg / 4).toFixed(1)}/10</p>
+                                <p>By: ${review.reviewer_name || 'Faculty'}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="loading">No reviews yet. Your project feedback will appear here.</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('reviews-container').innerHTML = '<div class="loading">Reviews could not be loaded.</div>';
+            }
+        }
+
+        function showError(message) {
+            const box = document.getElementById('error-container');
+            box.innerHTML = '<div class="error-box">' + message + '</div>';
+        }
+
+        window.addEventListener('load', () => {
+            loadDashboard();
+            loadProjects();
+            loadReviews();
+        });
+    </script>
+</body>
+</html>

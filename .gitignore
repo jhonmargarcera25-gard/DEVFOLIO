@@ -1,0 +1,45 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.pyc
+
+# Django
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+db.sqlite3
+.env
+.env.local
+
+# Media & Static Files
+/media/
+/staticfiles/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Celery
+celerybeat-schedule
+dump.rdb
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+.DS_Store
